@@ -1,0 +1,50 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    exchange_api_url: "%env(EXCHANGE_API_SERVICE_URL)%"
+    free_weekly_operations_limit: "%env(FREE_WEEKLY_OPERATIONS_LIMIT)%"
+    weekly_limit_eur: "%env(WEEKLY_LIMIT_EUR)%"
+    deposit_business_fee_percent: "%env(DEPOSIT_BUSINESS_FEE_PERCENT)%"
+    deposit_private_fee_percent: "%env(DEPOSIT_PRIVATE_FEE_PERCENT)%"
+    withdraw_business_fee_percent: "%env(WITHDRAW_BUSINESS_FEE_PERCENT)%"
+    withdraw_private_fee_percent: "%env(WITHDRAW_PRIVATE_FEE_PERCENT)%"
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services;
+        bind:
+            $exchangeApiUrl: '%exchange_api_url%'
+            $freeWeeklyOperationsLimit: '%free_weekly_operations_limit%'
+            $weeklyLimitEur: '%weekly_limit_eur%'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    App\Configuration\FeeCommissionConfig:
+        arguments:
+            $fees:
+                deposit:
+                    business: '%deposit_business_fee_percent%'
+                    private: '%deposit_private_fee_percent%'
+                withdraw:
+                    business: '%withdraw_business_fee_percent%'
+                    private: '%withdraw_private_fee_percent%'
