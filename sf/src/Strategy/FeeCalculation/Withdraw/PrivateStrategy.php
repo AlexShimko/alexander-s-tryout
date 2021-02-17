@@ -60,9 +60,9 @@ class PrivateStrategy extends AbstractFeeCalculationStrategy implements Calculat
         $weeklyLimit = $this->weeklyLimitCalculator->calculateWeeklyLimit($transaction);
 
         // Checking in current transaction operation is free
-        if ($this->isTransactionFree($transaction, $weeklyLimit)) {
-            $transaction->setFeeAmount(Money::zero($transactionOperationAmount->getCurrency()));
-            $this->cache->saveTransaction($transaction);
+        if ($this->isFreeWeeklyLimitReached($transaction, $weeklyLimit)) {
+            $transaction->setZeroFeeAmount();
+            $this->cache->saveTransactionByWeekDate($transaction);
 
             return $transaction->getFeeAmount();
         }
@@ -78,8 +78,6 @@ class PrivateStrategy extends AbstractFeeCalculationStrategy implements Calculat
 
         $transaction->setFeeAmount($feeOperationAmount->percent($this->getFeePercent($transaction)));
 
-        $this->cache->saveTransaction($transaction);
-
         return $transaction->getFeeAmount();
     }
 
@@ -88,7 +86,7 @@ class PrivateStrategy extends AbstractFeeCalculationStrategy implements Calculat
      * @param Money $weeklyLimit
      * @return bool
      */
-    protected function isTransactionFree(Transaction $transaction, Money $weeklyLimit): bool
+    protected function isFreeWeeklyLimitReached(Transaction $transaction, Money $weeklyLimit): bool
     {
         // Weekly amount is less than zero - transaction is not free
         if ($weeklyLimit->getAmount() < 0) {

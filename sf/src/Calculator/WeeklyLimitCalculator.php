@@ -76,10 +76,11 @@ class WeeklyLimitCalculator
         }
 
         // Getting client transactions from in-memory cache
-        if ($clientTransactions = $this->cache->getWeeklyTransactions(
+        $clientTransactions =  $this->cache->getWeeklyTransactions(
             $transaction->getClient()->getClientId(),
             $transaction->getDate()
-        )) {
+        );
+        if (\count($clientTransactions) > 0) {
             /** @var Transaction $transaction */
             foreach ($clientTransactions as $clientTransaction) {
                 $operationAmount = $clientTransaction->getOperationAmount();

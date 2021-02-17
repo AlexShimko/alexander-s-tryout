@@ -11,6 +11,7 @@ parameters:
     deposit_private_fee_percent: "%env(DEPOSIT_PRIVATE_FEE_PERCENT)%"
     withdraw_business_fee_percent: "%env(WITHDRAW_BUSINESS_FEE_PERCENT)%"
     withdraw_private_fee_percent: "%env(WITHDRAW_PRIVATE_FEE_PERCENT)%"
+    free_transactions_count: "%env(FREE_TRANSACTIONS_COUNT)%"
 
 services:
     # default configuration for services in *this* file
@@ -48,3 +49,4 @@ services:
                 withdraw:
                     business: '%withdraw_business_fee_percent%'
                     private: '%withdraw_private_fee_percent%'
+            $freeTransactionsCount: '%free_transactions_count%'

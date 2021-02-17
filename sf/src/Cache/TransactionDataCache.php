@@ -13,11 +13,21 @@ use App\Model\Transaction;
 class TransactionDataCache extends AbstractDataCache
 {
     /**
-     * Save Transaction in cache by generating the key
+     * Save Transaction in cache by clientId
      *
      * @param Transaction $transaction
      */
     public function saveTransaction(Transaction $transaction): void
+    {
+        $this->setCache($transaction->getClient()->getClientId(), $transaction);
+    }
+
+    /**
+     * Save Transaction in cache by generating the key
+     *
+     * @param Transaction $transaction
+     */
+    public function saveTransactionByWeekDate(Transaction $transaction): void
     {
         $this->setCache(
             $this->generateTransactionKey(
@@ -38,6 +48,17 @@ class TransactionDataCache extends AbstractDataCache
     public function getWeeklyTransactions(string $clientId, \DateTimeInterface $transactionDate): array
     {
         return $this->getCache($this->generateTransactionKey($clientId, $transactionDate));
+    }
+
+    /**
+     * Getting all transactions was done by $clientId
+     *
+     * @param string $clientId
+     * @return array
+     */
+    public function getTransactions(string $clientId): array
+    {
+        return $this->getCache($clientId);
     }
 
     /**

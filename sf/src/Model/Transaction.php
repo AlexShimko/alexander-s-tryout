@@ -84,6 +84,16 @@ class Transaction
     }
 
     /**
+     * Alias for get currency in single call
+     *
+     * @return string
+     */
+    public function getOperationCurrency(): string
+    {
+        return $this->getOperationAmount()->getCurrency();
+    }
+
+    /**
      * @param Money $operationAmount
      * @return $this
      */
@@ -109,6 +119,18 @@ class Transaction
     public function setFeeAmount(Money $feeAmount): Transaction
     {
         $this->feeAmount = $feeAmount;
+
+        return $this;
+    }
+
+    /**
+     * Set zero fee amount
+     *
+     * @return $this
+     */
+    public function setZeroFeeAmount(): Transaction
+    {
+        $this->feeAmount = Money::zero($this->getOperationCurrency());
 
         return $this;
     }

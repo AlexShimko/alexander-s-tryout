@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Facade;
 
+use App\Cache\TransactionDataCache;
 use App\Calculator\FeeCalculator;
 use App\Exception\NotImplementedStrategyException;
 use App\Factory\TransactionFactory;
@@ -33,6 +34,11 @@ class FeeCalculationFacade
     private MoneyView $moneyView;
 
     /**
+     * @var TransactionDataCache
+     */
+    private TransactionDataCache $transactionDataCache;
+
+    /**
      * FeeCalculationFacade constructor.
      * @param TransactionFactory $transactionFactory
      * @param FeeCalculator $feeCalculator
@@ -46,6 +52,7 @@ class FeeCalculationFacade
         $this->transactionFactory = $transactionFactory;
         $this->feeCalculator = $feeCalculator;
         $this->moneyView = $moneyView;
+        $this->transactionDataCache = TransactionDataCache::getInstance();
     }
 
     /**
@@ -61,6 +68,7 @@ class FeeCalculationFacade
         foreach ($transactions as $transaction) {
             try {
                 $output[] = $moneyView($this->feeCalculator->calculateTransactionFee($transaction));
+                $this->transactionDataCache->saveTransaction($transaction);
             } catch (NotImplementedStrategyException $e) {
                 // Logger or exception there
             }

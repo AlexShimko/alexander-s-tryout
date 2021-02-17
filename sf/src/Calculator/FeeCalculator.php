@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Calculator;
 
+use App\Cache\TransactionDataCache;
+use App\Configuration\FeeCommissionConfig;
 use App\Factory\FeeCalculationStrategyFactory;
 use App\Model\Money;
 use App\Model\Transaction;
@@ -26,12 +28,27 @@ class FeeCalculator
     private CalculationStrategyInterface $strategy;
 
     /**
+     * @var FeeCommissionConfig
+     */
+    private FeeCommissionConfig $feeCommissionConfig;
+
+    /**
+     * @var TransactionDataCache
+     */
+    private TransactionDataCache $transactionDataCache;
+
+    /**
      * FeeCalculator constructor.
      * @param FeeCalculationStrategyFactory $feeCalculationStrategyFactory
+     * @param FeeCommissionConfig $feeCommissionConfig
      */
-    public function __construct(FeeCalculationStrategyFactory $feeCalculationStrategyFactory)
-    {
+    public function __construct(
+        FeeCalculationStrategyFactory $feeCalculationStrategyFactory,
+        FeeCommissionConfig $feeCommissionConfig
+    ) {
         $this->feeCalculationStrategyFactory = $feeCalculationStrategyFactory;
+        $this->feeCommissionConfig = $feeCommissionConfig;
+        $this->transactionDataCache = TransactionDataCache::getInstance();
     }
 
     /**
@@ -42,6 +59,12 @@ class FeeCalculator
     public function calculateTransactionFee(Transaction $transaction): Money
     {
         $this->setStrategy($transaction);
+
+        if ($this->isTransactionFree($transaction)) {
+            $transaction->setZeroFeeAmount();
+
+            return $transaction->getFeeAmount();
+        }
 
         return $this->strategy->calculate($transaction);
     }
@@ -61,5 +84,22 @@ class FeeCalculator
         );
 
         return $this;
+    }
+
+    /**
+     * Default unchanged rules for every transactions
+     *
+     * @param Transaction $transaction
+     * @return bool
+     */
+    protected function isTransactionFree(Transaction $transaction): bool
+    {
+        $clientTransactions = $this->transactionDataCache->getTransactions($transaction->getClient()->getClientId());
+
+        if (\count($clientTransactions) >= $this->feeCommissionConfig->getFreeTransactionsCount()) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -10,13 +10,32 @@ namespace App\Configuration;
  */
 class FeeCommissionConfig
 {
+    /**
+     * @var array
+     */
     private array $fees;
 
-    public function __construct(array $fees)
+    /**
+     * @var int
+     */
+    private int $freeTransactionsCount;
+
+    /**
+     * FeeCommissionConfig constructor.
+     * @param array $fees
+     * @param int $freeTransactionsCount
+     */
+    public function __construct(array $fees, int $freeTransactionsCount)
     {
         $this->fees = $fees;
+        $this->freeTransactionsCount = $freeTransactionsCount;
     }
 
+    /**
+     * @param string $operationType
+     * @param string $clientType
+     * @return float
+     */
     public function getFeePercent(string $operationType, string $clientType): float
     {
         if (!isset($this->fees[$operationType][$clientType])) {
@@ -24,5 +43,15 @@ class FeeCommissionConfig
         }
 
         return (float)$this->fees[$operationType][$clientType];
+    }
+
+    /**
+     * Free transactions count for single client
+     *
+     * @return int
+     */
+    public function getFreeTransactionsCount(): int
+    {
+        return $this->freeTransactionsCount;
     }
 }
