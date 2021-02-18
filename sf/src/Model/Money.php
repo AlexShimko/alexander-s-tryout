@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Class Money implements money model with required math operations implemented.
  * Instead of "float" amount we want to store amount in "int".
@@ -14,15 +16,19 @@ namespace App\Model;
  * (float) 0.06 = (int) 6
  * For proper money displaying see: App\Helper\MoneyView
  * @package App\Model
- */
+ *
+ * @ORM\Embeddable
+*/
 class Money
 {
     /**
+     * @ORM\Column(type="integer")
      * @var int
      */
     private int $amount;
 
     /**
+     * @ORM\Column(type="string")
      * @var string
      */
     private string $currency;

@@ -25,3 +25,13 @@ services:
       - php-fpm
     ports:
       - "${NGINX_PORT_HOST}:80"
+
+  db:
+    platform: linux/x86_64
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: db
+    ports:
+      - "${MYSQL_PORT_HOST}:3306"

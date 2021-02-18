@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Facade\FeeCalculationFacade;
+use App\Repository\TransactionRepository;
 use http\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,13 +25,16 @@ class CalculateFeeCommand extends Command
      */
     private FeeCalculationFacade $feeCalculationFacade;
 
+    private $repo;
+
     /**
      * CalculateFeeCommand constructor.
      * @param FeeCalculationFacade $feeCalculationFacade
      */
-    public function __construct(FeeCalculationFacade $feeCalculationFacade)
+    public function __construct(FeeCalculationFacade $feeCalculationFacade, TransactionRepository $repo)
     {
         $this->feeCalculationFacade = $feeCalculationFacade;
+        $this->repo = $repo;
         parent::__construct(self::$defaultName);
     }
 
@@ -52,6 +56,10 @@ class CalculateFeeCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        var_dump($this->repo->findAll());
+
+        return 1;
+
         $uploadedFile = new UploadedFile($input->getOption('file'), $input->getOption('file'));
         if (!$uploadedFile) {
             throw new InvalidArgumentException('"file" is required');
